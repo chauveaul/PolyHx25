@@ -6,12 +6,6 @@ export default function Hero() {
       <nav className="flex justify-between items-top p-[1rem] pl-[2rem]">
         <p className="text-[4rem] m-[0rem] text-[#F8F5E9]">EmberAlert</p>
         <div className="flex gap-[2rem] items-center">
-          <a
-            href="#"
-            className="text-[1.5rem] text-[#F8F5E9] border-solid border-b-2"
-          >
-            Our Mission
-          </a>
           <Button
             variant={"outline"}
             size={"lg"}
