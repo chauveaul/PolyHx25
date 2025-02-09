@@ -26,7 +26,9 @@ from torch.utils.data import (
 
 
 class WildfireDataset(Dataset):
-    def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
+    def __init__(
+        self, annotations_file, img_dir, transform=None, target_transform=None
+    ):
         self.img_labels = pd.read_csv(annotations_file)
         self.img_dir = img_dir
         self.transform = transform
@@ -45,6 +47,7 @@ class WildfireDataset(Dataset):
             label = self.target_transform(label)
         return image, label
 
+
 # Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -57,9 +60,8 @@ num_epochs = 10
 
 # Load Data
 dataset = WildfireDataset(
-    annotations_file=r"C:\Users\lufai\Downloads\archive\wildfire_list2.csv",
-    img_dir=r"C:\Users\lufai\Downloads\archive\train",
-    transform=transforms.ToTensor(),
+    annotations_file="/Users/meze/Downloads/wildfire_list2.csv",
+    img_dir="/Users/meze/Downloads/archive/train",
 )
 
 print(len(dataset))
@@ -67,8 +69,7 @@ print(len(dataset))
 # Dataset is actually a lot larger ~25k images, just took out 10 pictures
 # to upload to Github. It's enough to understand the structure and scale
 # if you got more images.
-train_set, test_set = torch.utils.data.random_split(dataset, [25249, 5000])
-
+train_set, test_set = torch.utils.data.random_split(dataset, [25248, 5000])
 
 
 train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True)
@@ -95,12 +96,13 @@ for epoch in range(num_epochs):
 
     for batch_idx, (data, targets) in enumerate(train_loader):
         # Get data to cuda if possible
+        print(batch_idx)
         data = data.to(device=device)
         targets = targets.to(device=device)
 
         # forward
         scores = model(data)
-        loss = criterion(scores, targets)
+        loss = criterion(scores, targets.long())
 
         losses.append(loss.item())
 
@@ -112,6 +114,7 @@ for epoch in range(num_epochs):
         optimizer.step()
 
     print(f"Cost at epoch {epoch} is {sum(losses)/len(losses)}")
+
 
 # Check accuracy on training to see how good our model is
 def check_accuracy(loader, model):
