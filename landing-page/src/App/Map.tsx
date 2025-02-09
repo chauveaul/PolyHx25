@@ -49,11 +49,11 @@ export default function Map() {
             const formData = new FormData();
             formData.append("image", file);
             fetch("http://localhost:5000/", {
-              headers: { "Content-Type": "image/jpeg" },
+              method: "POST",
               body: formData,
-            }).then((res) => {
-              alert(res);
-            });
+            })
+              .then((res) => res.json())
+              .then((data) => alert(data.data));
           } else {
             console.log("Blob was null");
           }
