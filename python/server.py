@@ -69,8 +69,8 @@ def hello_world():
 
     print(f"Predicted class: {predicted_class.item()}")
     if predicted_class.item() == 0:
-        return jsonify({"status": 200, "data": "wildfire"})
+        return jsonify({"status": 200, "data": "Wildfire"})
     elif predicted_class.item() == 1:
-        return jsonify({"status": 200, "data": "nowildfire"})
+        return jsonify({"status": 200, "data": "No Wildfire"})
     else:
         return "error", 500
