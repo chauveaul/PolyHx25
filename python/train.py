@@ -15,6 +15,7 @@ import torch.nn as nn  # All neural network modules, nn.Linear, nn.Conv2d, Batch
 import torch.optim as optim  # For all Optimization algorithms, SGD, Adam, etc.
 import torchvision.transforms as transforms  # Transformations we can perform on our dataset
 import torchvision
+from torchvision.transforms.functional import to_pil_image
 from torchvision.io import read_image
 import os
 import pandas as pd
@@ -42,7 +43,8 @@ class WildfireDataset(Dataset):
         image = read_image(img_path)
         label = self.img_labels.iloc[idx, 1]
         if self.transform:
-            image = self.transform(image)
+            pil_image = to_pil_image(image)
+            image = self.transform(pil_image)
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
@@ -51,18 +53,25 @@ class WildfireDataset(Dataset):
 # Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Load Data
+dataset = WildfireDataset(
+    annotations_file="/Users/meze/Downloads/wildfire_list2.csv",
+    img_dir="/Users/meze/Downloads/archive/train",
+    transform=transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+        ]
+    ),
+)
+
 # Hyperparameters
 in_channel = 3
 num_classes = 2
 learning_rate = 3e-4
 batch_size = 32
 num_epochs = 10
-
-# Load Data
-dataset = WildfireDataset(
-    annotations_file="/Users/meze/Downloads/wildfire_list2.csv",
-    img_dir="/Users/meze/Downloads/archive/train",
-)
 
 print(len(dataset))
 
