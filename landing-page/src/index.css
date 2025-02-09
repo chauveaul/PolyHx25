@@ -10,3 +10,8 @@ html {
 body {
   margin: 0;
 }
+
+.map {
+  height: 100vh;
+  overflow-y: hidden;
+}

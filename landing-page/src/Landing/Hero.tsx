@@ -16,7 +16,7 @@ export default function Hero() {
             variant={"outline"}
             size={"lg"}
             className="bg-[#3A7D44] border-[#3A7D44]"
-            onClick={() => (window.location.href = "http://localhost:5174/app")}
+            onClick={() => (window.location.href = "http://localhost:5173/app")}
           >
             <p className="text-[1.5rem] text-[#F8F5E9]">Get Started</p>
           </Button>
@@ -30,7 +30,7 @@ export default function Hero() {
             variant={"outline"}
             size={"sm"}
             className="bg-[#3A7D44] border-[#3A7D44] max-w-[12rem] p-[2rem]"
-            onClick={() => (window.location.href = "http://localhost:5174/app")}
+            onClick={() => (window.location.href = "http://localhost:5173/app")}
           >
             <p className="text-[#F8F5E9] text-[2rem]">Get Started</p>
           </Button>
