@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 
 # from appwrite.client import Client
@@ -9,7 +9,7 @@ import os
 import torch
 import torchvision.transforms as transforms
 import io
-from FIP import Image
+from PIL import Image
 
 
 app = Flask(__name__)
@@ -33,7 +33,9 @@ def hello_world():
     # )
     # print("result")
 
-    file = request.files["image"]
+    img = Image.open(request.files["image"].stream).convert("RGB")
+    print(request.files)
+    print(request.files["image"])
 
     model = torch.load(
         "EmberAlert.pth", map_location=torch.device("cpu"), weights_only=False
@@ -67,8 +69,8 @@ def hello_world():
 
     print(f"Predicted class: {predicted_class.item()}")
     if predicted_class.item() == 0:
-        return "wildfire", 200
+        return jsonify({"status": 200, "data": "wildfire"})
     elif predicted_class.item() == 1:
-        return "nowildfire", 200
+        return jsonify({"status": 200, "data": "nowildfire"})
     else:
-        return "error", 400
+        return "error", 500
