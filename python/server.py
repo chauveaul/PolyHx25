@@ -9,7 +9,7 @@ import os
 import torch
 import torchvision.transforms as transforms
 import io
-from FIP import Image
+from PIL import Image
 
 
 app = Flask(__name__)
@@ -50,7 +50,7 @@ def hello_world():
     )
 
     # Apply the transformations
-    img_tensor = transform(img).float()
+    img_tensor = transform(file).float()
 
     # Add the batch dimension
     img_tensor.unsqueeze_(0)
