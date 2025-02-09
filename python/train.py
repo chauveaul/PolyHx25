@@ -1,29 +1,16 @@
-"""
-Example of how to create custom dataset in Pytorch. In this case
-we have images of cats and dogs in a separate folder and a csv
-file containing the name to the jpg file as well as the target
-label (0 for cat, 1 for dog).
-
-Programmed by Aladdin Persson <aladdin.persson at hotmail dot com>
-*    2020-04-03 Initial coding
-*    2022-12-19 Updated with better comments, improved code using PIL, and checked code still functions as intended.
-"""
-
-# Imports
 import torch
-import torch.nn as nn  # All neural network modules, nn.Linear, nn.Conv2d, BatchNorm, Loss functions
-import torch.optim as optim  # For all Optimization algorithms, SGD, Adam, etc.
-import torchvision.transforms as transforms  # Transformations we can perform on our dataset
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
 import torchvision
 from torchvision.transforms.functional import to_pil_image
-from torchvision.io import read_image
+from torchvision.io import decode_image
 import os
 import pandas as pd
-from PIL import Image
 from torch.utils.data import (
     Dataset,
     DataLoader,
-)  # Gives easier dataset managment and creates mini batches
+)
 
 
 class WildfireDataset(Dataset):
@@ -40,23 +27,21 @@ class WildfireDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
-        image = read_image(img_path)
+        image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
         if self.transform:
-            pil_image = to_pil_image(image)
-            image = self.transform(pil_image)
+            image = to_pil_image(image)
+            image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
 
 
-# Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Load Data
 dataset = WildfireDataset(
-    annotations_file="/Users/meze/Downloads/wildfire_list2.csv",
-    img_dir="/Users/meze/Downloads/archive/train",
+    annotations_file="/content/wildfire_list2.csv",
+    img_dir="/content/archive/archive/train",
     transform=transforms.Compose(
         [
             transforms.Resize((224, 224)),
@@ -66,66 +51,52 @@ dataset = WildfireDataset(
     ),
 )
 
-# Hyperparameters
 in_channel = 3
 num_classes = 2
 learning_rate = 3e-4
 batch_size = 32
-num_epochs = 10
+num_epochs = 20
 
 print(len(dataset))
 
-# Dataset is actually a lot larger ~25k images, just took out 10 pictures
-# to upload to Github. It's enough to understand the structure and scale
-# if you got more images.
 train_set, test_set = torch.utils.data.random_split(dataset, [25248, 5000])
 
 
 train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_set, batch_size=batch_size, shuffle=True)
 
-# Model
 model = torchvision.models.googlenet(weights="DEFAULT")
 
-# freeze all layers, change final linear layer with num_classes
 for param in model.parameters():
     param.requires_grad = False
 
-# final layer is not frozen
 model.fc = nn.Linear(in_features=1024, out_features=num_classes)
 model.to(device)
 
-# Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
-# Train Network
 for epoch in range(num_epochs):
     losses = []
 
     for batch_idx, (data, targets) in enumerate(train_loader):
-        # Get data to cuda if possible
         print(batch_idx)
         data = data.to(device=device)
         targets = targets.to(device=device)
 
-        # forward
         scores = model(data)
         loss = criterion(scores, targets.long())
 
         losses.append(loss.item())
 
-        # backward
         optimizer.zero_grad()
         loss.backward()
 
-        # gradient descent or adam step
         optimizer.step()
 
     print(f"Cost at epoch {epoch} is {sum(losses)/len(losses)}")
 
 
-# Check accuracy on training to see how good our model is
 def check_accuracy(loader, model):
     num_correct = 0
     num_samples = 0
@@ -153,3 +124,7 @@ check_accuracy(train_loader, model)
 
 print("Checking accuracy on Test Set")
 check_accuracy(test_loader, model)
+
+print("Saving the model...")
+torch.save(model, "/content/EmberAlert.pth")
+print("Model saved!")
