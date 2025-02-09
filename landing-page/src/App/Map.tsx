@@ -46,35 +46,14 @@ export default function Map() {
         canvas.toBlob((blob) => {
           if (blob) {
             const file = new File([blob], "map");
-            const fileId = ID.unique();
-
-            const promise = storage.createFile(
-              "67a84b5e002984581076",
-              fileId,
-              file,
-            );
-
-            promise.then(
-              (response) => {
-                console.log(response); // Success
-                const evaluationRes = functions.createExecution(
-                  "67a84c0400374d85aed7",
-                  fileId,
-                );
-
-                evaluationRes.then(
-                  (res) => {
-                    console.log(res);
-                  },
-                  (err) => {
-                    console.log(err);
-                  },
-                );
-              },
-              (error) => {
-                console.log(error); // Failure
-              },
-            );
+            const formData = new FormData();
+            formData.append("image", file);
+            fetch("http://localhost:5000/", {
+              headers: { "Content-Type": "image/jpeg" },
+              body: formData,
+            }).then((res) => {
+              alert(res);
+            });
           } else {
             console.log("Blob was null");
           }
